@@ -12,4 +12,8 @@ class Models extends Model
         'name',
         'url'
     ];
+    public function generations()
+    {
+        return $this->hasMany(Generation::class, 'model_id');
+    }
 }

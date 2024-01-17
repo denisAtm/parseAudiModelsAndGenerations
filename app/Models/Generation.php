@@ -16,4 +16,8 @@ class Generation extends Model
         'imageSrc',
         'techSpecsLink'
     ];
+    public function model()
+    {
+        return $this->belongsTo(Models::class, 'model_id');
+    }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('generations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('model_id')->constrained();
             $table->string('market');
             $table->string('modelName');
             $table->string('period');
