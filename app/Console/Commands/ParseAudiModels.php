@@ -13,7 +13,7 @@ class ParseAudiModels extends Command
 
     protected $description = 'Парсинг моделей ауди';
 
-    public function handle()
+    public function handle(): void
     {
         $client = new Client();
         $response = $client->request('GET', 'https://www.drom.ru/catalog/audi/');

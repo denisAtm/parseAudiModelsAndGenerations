@@ -13,28 +13,25 @@ class ParseAudiGenerations extends Command
     protected $signature = 'parse:audi-generations';
     protected $description = 'Парсинг поколений ауди';
 
-    public function handle()
+    public function handle(): void
     {
         $client = new Client();
+
         $models = Models::all();
 
         foreach ($models as $model) {
             try {
                 $existingModel = Models::where('name', $model['name'])->first();
-
-                if ($existingModel) {
                     $modelPageResponse = $client->request('GET', $model['url']);
                     $modelPageHtml = $modelPageResponse->getBody()->getContents();
                     $modelPageCrawler = new Crawler($modelPageHtml);
 
                     $modelPageCrawler->filter('.e1ei9t6a4')->each(function ($generationNode) use ($existingModel, $model) {
                         $market = $generationNode->filter('.css-112idg0')->text();
-
                         $generationNode->filterXPath('.//div[contains(@class, "e1ei9t6a0")]')->each(function ($generationItem) use ($existingModel, $market,$model) {
                             $modelNameElement = $generationItem->filter('.e1ei9t6a2')->first();
-                            $periodElement = $generationItem->filter('.e1ei9t6a2')->nextAll()->first();
                             $modelNameText = $modelNameElement ? $modelNameElement->filterXPath('//text()[not(ancestor::svg)]')->text() : '';
-                            $regex = '/^(?<modelName>.+?)\s((\d{2}\.\d{4})\s-\s((\d{2}\.\d{4})|(н\.в\.))|(\d{2}\.\d{4}\s-\sн\.в\.)|(\d{2}\.\d{4})|(н\.в\.))$/';
+                            $regex = '/^(?<modelName>.+?)\s((\d{2}\.\d{4})\s-\s((\d{2}\.\d{4})|(н\.в\.))|(\d{2}\.\d{4}\s-\sн\.в\.)|(\d{2}\.\d{4})|(н\.в\.))$/u';
 
                             if (preg_match($regex, $modelNameText, $matches)) {
                                 $modelName = $matches['modelName'];
@@ -64,7 +61,6 @@ class ParseAudiGenerations extends Command
                             }
                         });
                     });
-                }
             } catch (\Exception $e) {
                 $this->error('Error processing model ' . $model['name'] . ': ' . $e->getMessage());
             }
